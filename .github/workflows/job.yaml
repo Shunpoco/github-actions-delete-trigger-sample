@@ -21,7 +21,7 @@ jobs:
     - name: Get Files
       id: get-files
       run: |
-        FILES="$(git diff --name-only --diff-filter=AM ${{ github.sha }} HEAD^ | grep ^files/ | xargs -L1 | cut -d'/' -f2 | uniq)"
+        FILES="$(git diff --name-only --diff-filter=AM main | grep ^files/ | xargs -L1 | cut -d'/' -f2 | uniq)"
         echo $FILES
         echo "::set-output name=files::$(jq -ncR '[inputs]' <<< $FILES)"
 
