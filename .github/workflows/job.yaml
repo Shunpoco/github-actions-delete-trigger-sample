@@ -5,7 +5,7 @@ on:
     paths:
     - "files/**"
     branches:
-    - "master"
+    - "main"
 
 jobs:
   get-files:
