@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    paths:
+    - "files/**"
+    branches:
+      - "master"
+
+jobs:
+  get-files:
+    runs-on: ubuntu-20.04
+    outputs:
+      files: ${{ steps.get-files.outputs.files }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - name: Get Files
+      id: get-files
+      run: |
+        FILES="$(git diff --name-only ${{ github.sha }} HEAD^) | grep ^files/ | xargs -L1 | cut -d'/' -f2 | uniq)"
+        echo $FILES
+        echo "::set-output name=files::$(jq -ncR '[inputs]' <<< $FILES)"
+
+  deploy-files:
+    runs-on: ubuntu-20.04
+    needs: get-files
+    strategy:
+      matrix:
+        file: ${{ fromJson(needs.get-files.outputs.files) }}
+    defaults:
+      run:
+        working-directory: ./files
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Deploy
+      run: |
+        head -1 ${{ matrix.file }}
+
